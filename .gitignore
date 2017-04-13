@@ -1,0 +1,6 @@
+*.pyc
+*flymake*
+*~
+*parsed_logs*
+*.jar
+*raw_logs*
