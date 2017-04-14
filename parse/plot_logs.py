@@ -5,20 +5,8 @@ import numpy as np
 import matplotlib
 matplotlib.use('TkAgg') 
 import pylab as plt
+from core.signal import Signal, display
 
-
-def parse_by_columns(csv_path):
-    data=np.genfromtxt(csv_path, delimiter=" ", 
-                       dtype=None)
-
-    min_time=data[0][0]
-    time=[entry[0]-min_time for entry in data]
-    #print(time)
-    val_x=[entry[1] for entry in data]
-    val_y=[entry[2] for entry in data]
-    val_z=[entry[3] for entry in data]
-
-    return (time, val_x, val_y, val_z)
 
 def plot_multidimensional(time, axes_data):
     n_rows=len(axes_data)
