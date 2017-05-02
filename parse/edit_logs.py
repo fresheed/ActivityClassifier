@@ -40,7 +40,6 @@ class LogCutter(object):
         self.callback=plt.figure()
         plt.figure(self.callback.number)
         display_signal(subsignal, True)
-        self.callback.canvas.draw()
 
         plt.figure(self.figure.number)
         
@@ -49,6 +48,7 @@ class LogCutter(object):
 def main():
     parser=ArgumentParser()
     parser.add_argument("--log", "-l", required=True)
+    parser.add_argument("--output", "-o", required=True)
     args=parser.parse_args()
 
     signal=Signal.read_3d_csv(args.log)
@@ -65,6 +65,10 @@ def main():
 
     plt.show()
 
-    print(cutter.left_bound, cutter.right_bound)
+    subsignal=Signal.get_subsignal(signal, cutter.left_bound,
+                                   cutter.right_bound)
+
+    Signal.save_csv(subsignal, args.output)
+
 
 main()
