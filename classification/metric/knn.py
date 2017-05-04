@@ -9,7 +9,7 @@ class KNNClassifier(MetricClassifier):
     def train(self, train_items, train_classes):
         distances=compute_metric_table(self.metric, train_items,
                                        train_items)
-        classifier=neighbors.KNeighborsClassifier(2, metric="precomputed")
+        classifier=neighbors.KNeighborsClassifier(5, metric="precomputed")
         classifier.fit(distances, train_classes)
         return KNNTrainedModel(self.metric, classifier, train_items)
 
