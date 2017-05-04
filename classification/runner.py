@@ -18,7 +18,11 @@ def collect_class_logs(class_name):
                           index_col=0, encoding="utf-8-sig",
                           converters={0: to_dt},
                           names=["TS", "x", "y", "z"])
-        return frame
+        
+        req_period=datetime.timedelta(milliseconds=100)
+        even_frame=frame.resample(req_period).mean().interpolate()
+
+        return even_frame
 
     log_dir=("/home/fresheed/research/diploma"
              "/ActivityClassifier/parse/parsed_logs/")
@@ -80,9 +84,7 @@ def split_items_set(items):
     return train_set, test_set
 
 
-def run_classifiers():
-    classes=["pushups5_", "walk50_", "sits10_"]
-
+def get_classified_chunks(classes):
     def chunks_for_log(cls):
         classified_logs=collect_class_logs(cls)
         cut_logs=strip_logs(classified_logs)
@@ -93,6 +95,13 @@ def run_classifiers():
                        for cls in classes
                        for chunk in chunks_for_log(cls)]
 
+    return classified_chunks
+
+
+def run_classifiers():
+    classes=["pushups5_", "walk50_", "sits10_", "typing_1"]
+
+    classified_chunks=get_classified_chunks(classes)
 
     train_set, test_set=split_items_set(classified_chunks)
     classes_size=Counter([entry[1] for entry in classified_chunks])
@@ -104,8 +113,6 @@ def run_classifiers():
     train_items, train_classes=zip(*train_set)
     test_items, test_classes=zip(*test_set)
 
-    # attempt 0: try to learn on all data available
-    
     for classificator in [knn.KNNClassifier]:
         print("\nUsing %s" % classificator.__name__)
         classifier=classificator(dtw_INEQUAL_TIME_metric)
