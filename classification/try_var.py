@@ -34,10 +34,14 @@ if __name__=="__main__":
     train_seria, test_seria=aclr_x[:seria_len//2], aclr_x[seria_len//2:]
 
     model = VAR(train_seria)
-    orders_by_criterias = model.select_order()
-    order = orders_by_criterias['fpe']
+    # orders_by_criterias = model.select_order()
+    # order = orders_by_criterias['fpe']
+    order=3
+    
     model_fit = model.fit(order)
-
+    print("order:", order)
+    print(model_fit.coefs)
+    
     predictions=model_fit.forecast(even_frame.values[-order:], len(test_seria))
     
     for axis in range(3):

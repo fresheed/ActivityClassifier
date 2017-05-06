@@ -27,12 +27,17 @@ if __name__=="__main__":
     
     freqs=np.fft.fftfreq(len(even_frame.values))
     spectrum=np.fft.fftn(even_frame.values)
-    #spectrum=np.fft.fft(even_frame.values[:, 0])
+    magnitudes=abs(spectrum[:, 0])
+    plt.plot(freqs, magnitudes)
     
-    #print(spectrum[:, 0])
-    print(freqs)
-    plt.plot(np.fft.fftshift(freqs), np.fft.fftshift(abs(spectrum[:, 0])))
-    plt.figure()
-    plt.plot(freqs, abs(spectrum[:, 0]))
+
+    print("refactor it!")
+    up_to=len(freqs)//2
+    joined=list(zip(freqs[1:up_to], magnitudes[1:up_to]))
+    print("joined:", list(joined))
+    sorted_spectrum=sorted(joined, key=lambda item: (-1)*item[1])
+    print("most significant freqs:", sorted_spectrum[:5])
+    top_freqs=[spc[0] for spc in sorted_spectrum[:5]]
+
+    
     plt.show()
-    

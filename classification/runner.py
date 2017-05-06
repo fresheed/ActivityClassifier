@@ -1,5 +1,6 @@
 #! /usr/bin/python3
 from classification.metric import knn
+from classification.features import mlp, var, fft
 from sklearn.metrics import confusion_matrix, accuracy_score
 import pandas as pd
 import os
@@ -44,7 +45,8 @@ def strip_logs(logs):
 
 
 def split_logs(logs):
-    chunk_duration=datetime.timedelta(seconds=1.3)
+    #chunk_duration=datetime.timedelta(seconds=1.3)
+    chunk_duration=datetime.timedelta(seconds=3)
 
     def get_chunks(log):
         log_duration=max(log.index)-min(log.index)
@@ -56,10 +58,13 @@ def split_logs(logs):
             
         split_moments=[min(log.index)+chunk_duration*mul 
                        for mul in range(1, num_borders+1)]
+        #print("split at:", split_moments)
         border_indices=[border_for_moment(mt) 
                         for mt in split_moments]
         chunks=np.split(log, border_indices)
-        return chunks        
+        # print(["dur: %s" % (max(chunk.index)-min(chunk.index)).microseconds
+        #        for chunk in chunks ])
+        return chunks[:-1]
 
     return list(itertools.chain.from_iterable([get_chunks(log) 
                                                for log in logs]))
@@ -85,6 +90,8 @@ def split_items_set(items):
 
 
 def get_classified_chunks(classes):
+    print("\n fix chunk split algorithm ? \n")
+
     def chunks_for_log(cls):
         classified_logs=collect_class_logs(cls)
         cut_logs=strip_logs(classified_logs)
@@ -113,9 +120,13 @@ def run_classifiers():
     train_items, train_classes=zip(*train_set)
     test_items, test_classes=zip(*test_set)
 
-    for classificator in [knn.KNNClassifier]:
-        print("\nUsing %s" % classificator.__name__)
-        classifier=classificator(dtw_INEQUAL_TIME_metric)
+    #extractor=var.VARCoeffsExtractor()
+    extractor=fft.FFTCoeffsExtractor()
+
+    classifiers=[#knn.KNNClassifier(dtw_INEQUAL_TIME_metric),
+                 mlp.MLPClassifier(extractor)]
+    for classifier in classifiers:
+        print("\nUsing %s" % classifier.__class__.__name__)
         trained_model=classifier.train(train_items, train_classes)
         classified=trained_model.classify(test_items)
         confmat=confusion_matrix(test_classes, classified)
