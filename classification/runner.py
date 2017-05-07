@@ -129,7 +129,9 @@ def run_classifiers():
         print("\nUsing %s" % classifier.__class__.__name__)
         trained_model=classifier.train(train_items, train_classes)
         classified=trained_model.classify(test_items)
-        confmat=confusion_matrix(test_classes, classified)
+        confmat=confusion_matrix(test_classes, classified,
+                                 labels=classes)
+        print("Classes:", classes)
         print("Confusion:")
         print(confmat)
         print("Accuracy:", accuracy_score(test_classes, classified))
