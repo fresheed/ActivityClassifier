@@ -6,7 +6,8 @@ from sklearn.neural_network import MLPClassifier as MLPNet
 class MLPClassifier(FeatureClassifier):
 
     def train(self, train_items, train_classes):
-        classifier=MLPNet()
+        classifier=MLPNet(activation="relu", learning_rate="adaptive",
+                          hidden_layer_sizes=(100, ))
         features=self.extractor.extract_features(train_items)
         fitted=classifier.fit(features, train_classes)
         return MLPTrainedModel(self.extractor, fitted)

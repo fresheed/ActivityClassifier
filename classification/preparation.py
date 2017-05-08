@@ -1,7 +1,4 @@
 #! /usr/bin/python3
-from classification.metric import knn
-from classification.features import mlp, var, fft
-from sklearn.metrics import confusion_matrix, accuracy_score
 import pandas as pd
 import os
 import datetime
@@ -10,7 +7,8 @@ import itertools
 import _ucrdtw as dtw
 from collections import Counter
 
-def collect_class_logs(class_name):
+
+def collect_class_logs(class_name, log_dir):
 
     def read_log(log_file):
         to_dt=lambda stamp: datetime.datetime.fromtimestamp(int(stamp)/1e9)
@@ -25,8 +23,6 @@ def collect_class_logs(class_name):
 
         return even_frame
 
-    log_dir=("/home/fresheed/research/diploma"
-             "/ActivityClassifier/parse/parsed_logs/")
     to_select=lambda path: path.startswith(class_name)
     selected_files=filter(to_select, os.listdir(log_dir))
     return [read_log(os.path.join(log_dir, log_file)) 
@@ -44,9 +40,7 @@ def strip_logs(logs):
     return [strip_borders(log) for log in logs]
 
 
-def split_logs(logs):
-    #chunk_duration=datetime.timedelta(seconds=1.3)
-    chunk_duration=datetime.timedelta(seconds=3)
+def split_logs(logs, chunk_duration):
 
     def get_chunks(log):
         log_duration=max(log.index)-min(log.index)
@@ -62,8 +56,6 @@ def split_logs(logs):
         border_indices=[border_for_moment(mt) 
                         for mt in split_moments]
         chunks=np.split(log, border_indices)
-        # print(["dur: %s" % (max(chunk.index)-min(chunk.index)).microseconds
-        #        for chunk in chunks ])
         return chunks[:-1]
 
     return list(itertools.chain.from_iterable([get_chunks(log) 
@@ -81,21 +73,43 @@ def dtw_INEQUAL_TIME_metric(x, y):
     return mean_dist
 
 
-def split_items_set(items):
+def split_items_set(all_items):
     test_rate=0.3
-    split_at=int(len(items)*(1-test_rate))
-    randomized=np.random.permutation(items)
-    train_set, test_set=randomized[:split_at], randomized[split_at:]
-    return train_set, test_set
+    classes_stats=lambda items: Counter([entry[1] for entry in items])
+    mentioned_classes=classes_stats(all_items).keys()
+
+    def validate_set(items_set):
+        if any(classes_stats(items_set)[cls]==0
+               for cls in mentioned_classes):
+            raise ValueError("Invalid split algorithm")  
+
+    def split():
+        split_at=int(len(all_items)*(1-test_rate))
+        randomized=np.random.permutation(all_items)
+        train_set, test_set=randomized[:split_at], randomized[split_at:]
+        validate_set(test_set)
+        validate_set(train_set)
+        return train_set, test_set
+
+    attempts=0
+    while True:
+        try:
+            train_set, test_set=split()
+            return train_set, test_set
+        except ValueError:
+            attempts+=1
+            if attempts >= 2:
+                raise ValueError("Cannot split chunks")
 
 
-def get_classified_chunks(classes):
+
+def get_classified_chunks(location, classes, duration):
     print("\n fix chunk split algorithm ? \n")
 
     def chunks_for_log(cls):
-        classified_logs=collect_class_logs(cls)
+        classified_logs=collect_class_logs(cls, location)
         cut_logs=strip_logs(classified_logs)
-        chunks=split_logs(cut_logs)    
+        chunks=split_logs(cut_logs, duration)
         return chunks
         
     classified_chunks=[(chunk, cls)
@@ -103,41 +117,3 @@ def get_classified_chunks(classes):
                        for chunk in chunks_for_log(cls)]
 
     return classified_chunks
-
-
-def run_classifiers():
-    classes=["pushups5_", "walk50_", "sits10_", "typing_1"]
-
-    classified_chunks=get_classified_chunks(classes)
-
-    train_set, test_set=split_items_set(classified_chunks)
-    classes_size=Counter([entry[1] for entry in classified_chunks])
-    train_size=Counter([entry[1] for entry in train_set])
-    for cls in classes:
-        print("%s: %d/%d" % (cls, train_size[cls],
-                             classes_size[cls]-train_size[cls]))
-
-    train_items, train_classes=zip(*train_set)
-    test_items, test_classes=zip(*test_set)
-
-    #extractor=var.VARCoeffsExtractor()
-    extractor=fft.FFTCoeffsExtractor()
-
-    classifiers=[#knn.KNNClassifier(dtw_INEQUAL_TIME_metric),
-                 mlp.MLPClassifier(extractor)]
-    for classifier in classifiers:
-        print("\nUsing %s" % classifier.__class__.__name__)
-        trained_model=classifier.train(train_items, train_classes)
-        classified=trained_model.classify(test_items)
-        confmat=confusion_matrix(test_classes, classified,
-                                 labels=classes)
-        print("Classes:", classes)
-        print("Confusion:")
-        print(confmat)
-        print("Accuracy:", accuracy_score(test_classes, classified))
-    
-        
-
-if __name__=="__main__":
-    #main()
-    run_classifiers()
