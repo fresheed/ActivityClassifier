@@ -1,13 +1,12 @@
 #! /usr/bin/python3
-
-import matplotlib
-matplotlib.use('TkAgg') 
-import pylab as plt
-
-
 from classification.features.feature_classifier import FeatureExtractor
 import numpy as np
 import itertools
+from scipy.signal import argrelextrema
+import peakutils
+import matplotlib
+matplotlib.use('TkAgg') 
+import pylab as plt
 
 
 class FFTCoeffsExtractor(FeatureExtractor):
@@ -28,19 +27,13 @@ class FFTCoeffsExtractor(FeatureExtractor):
         return all_coeffs
 
     def process_single_axis(self, item):
-        spectrum=get_spectrum(item.values)
-        freqs, magnitudes=zip(*spectrum)
-        sorted_spectrum=sorted(spectrum, key=lambda item: (-1)*item[1])
-        top_freqs=[spc[0] for spc in sorted_spectrum[:5]]
-        
-        plt.subplot(3, 1, self.axis)
-        plt.plot(freqs, magnitudes)
-        self.axis+=1
+        spectrum=self.get_spectrum(item.values)
+        peaks=self.find_spectrum_peaks(spectrum)
+        sorted_peaks=sorted(peaks, key=lambda pair: -pair[1])
+        top_peaks_freqs=[peak[0] for peak in sorted_peaks][:2]
+        return top_peaks_freqs
 
-        return top_freqs
-
-
-def get_spectrum(signal):
+    def get_spectrum(self, signal):
         freqs=np.fft.fftfreq(len(signal))
         spectrum=np.fft.fftn(signal)
         magnitudes=abs(spectrum)
@@ -48,3 +41,18 @@ def get_spectrum(signal):
         joined=list(zip(freqs[1:up_to], magnitudes[1:up_to]))
         return joined
 
+    def find_spectrum_peaks(self, spectrum):
+        freqs, magnitudes=zip(*spectrum)
+        def is_peak(ind):
+            cur=magnitudes[ind]
+            left=magnitudes[ind-1]
+            right=magnitudes[ind+1]
+            diff_left=cur-left
+            diff_right=cur-right
+            threshold=cur/40
+            return ((diff_left>threshold and diff_right>threshold)
+                    or (diff_left<-threshold and diff_right<-threshold))
+        extrems_at=[ind-1 for ind in range(1, len(freqs)-1)
+                    if is_peak(ind)]
+        top_spectrum=[spectrum[int(ind)] for ind in extrems_at]
+        return top_spectrum

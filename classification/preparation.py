@@ -4,7 +4,6 @@ import os
 import datetime
 import numpy as np
 import itertools
-import _ucrdtw as dtw
 from collections import Counter
 
 
@@ -62,18 +61,7 @@ def split_logs(logs, chunk_duration):
                                                for log in logs]))
 
 
-def dtw_INEQUAL_TIME_metric(x, y):
-    def transform_dist(x, y, row):
-        index, dist = dtw.ucrdtw(x[row].values, y[row].values,
-                                 0.05, False)
-        return dist
-    dists_for_axes=[transform_dist(x, y, row) 
-                    for row in ("x", "y", "z")]
-    mean_dist=np.mean(dists_for_axes)
-    return mean_dist
-
-
-def split_items_set(all_items):
+def split_items_set_XXX(all_items):
     test_rate=0.3
     classes_stats=lambda items: Counter([entry[1] for entry in items])
     mentioned_classes=classes_stats(all_items).keys()
@@ -102,6 +90,20 @@ def split_items_set(all_items):
                 raise ValueError("Cannot split chunks")
 
 
+def split_items_set(all_items):
+    test_rate=0.3
+    train_set=[]
+    test_set=[]
+    for cls, items in all_items.items():
+        split_at=int(len(items)*(1-test_rate))
+        _tmp_items = np.empty(len(items), dtype=object)
+        _tmp_items[:]= items
+        randomized=np.random.permutation(_tmp_items)
+        train_items, test_items=randomized[:split_at], randomized[split_at:]
+        train_set.extend([(item, cls) for item in train_items])
+        test_set.extend([(item, cls) for item in test_items])
+    return train_set, test_set        
+
 
 def get_classified_chunks(location, classes, duration):
     print("\n fix chunk split algorithm ? \n")
@@ -112,8 +114,10 @@ def get_classified_chunks(location, classes, duration):
         chunks=split_logs(cut_logs, duration)
         return chunks
         
-    classified_chunks=[(chunk, cls)
-                       for cls in classes
-                       for chunk in chunks_for_log(cls)]
+    # classified_chunks=[(chunk, cls)
+    #                    for cls in classes
+    #                    for chunk in chunks_for_log(cls)]
+    classified_chunks={cls: chunks_for_log(cls)
+                       for cls in classes}
 
     return classified_chunks
