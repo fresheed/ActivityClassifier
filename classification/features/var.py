@@ -6,12 +6,7 @@ import itertools
 
 class VARCoeffsExtractor(FeatureExtractor):
 
-    def extract_features(self, items):
-        features=[self.extract_var_features(item) 
-                  for item in items]
-        return features
-
-    def extract_var_features(self, item):
+    def extract_item_features(self, item):
         axes_coeffs=[self.process_single_axis(item[axis])
                      for axis in ("x", "y", "z")]
         all_coeffs=itertools.chain.from_iterable(axes_coeffs)

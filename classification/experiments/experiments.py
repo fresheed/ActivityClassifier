@@ -17,13 +17,6 @@ class Experiment(object):
         confmat=ConfusionMatrix(test_classes, classified)
         return confmat
 
-    def get_classifiers(self):
-        fft_mlp=mlp.MLPClassifier(fft.FFTCoeffsExtractor())
-        ar_mlp=mlp.MLPClassifier(var.VarCoeffsExtractor())
-        dtw_knn=knn.KNNClassifier(metrics.dtw_INEQUAL_TIME_metric)
-        return [fft_mlp, ar_mlp, dtw_knn]
-
-
 
 class ConfusionMatrix(object):
     """ Utility class that holds classification results """

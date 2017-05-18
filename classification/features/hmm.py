@@ -1,17 +1,11 @@
 #! /usr/bin/python3
 from classification.features.feature_classifier import FeatureExtractor
 from hmmlearn import hmm
-import numpy as np
 
 
 class HMMCoeffsExtractor(FeatureExtractor):
 
-    def extract_features(self, items):
-        features=[self.extract_hmm_features(item) 
-                  for item in items]
-        return features
-
-    def extract_hmm_features(self, item):
+    def extract_item_features(self, item):
         num_states=3
         init=hmm.GaussianHMM(num_states, covariance_type="full",
                              algorithm="map",)

@@ -19,6 +19,12 @@ class TrainedModel(object):
 class FeatureExtractor(object):
 
     def extract_features(self, items):
-        pass
+        features=[self.extract_item_features(item) 
+                  for item in items]
+        return features
+
+    def extract_item_features(self, item):
+        raise NotImplemented("Subclass must implement it")
+
 
         

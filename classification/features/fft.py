@@ -2,31 +2,28 @@
 from classification.features.feature_classifier import FeatureExtractor
 import numpy as np
 import itertools
-from scipy.signal import argrelextrema
-import peakutils
-import matplotlib
-matplotlib.use('TkAgg') 
-import pylab as plt
 
 
 class FFTCoeffsExtractor(FeatureExtractor):
 
     def extract_features(self, items):
-        features=[self.extract_fft_features(item) 
-                  for item in items]
-        return features
+        self.validate_items_length(items)
+        return super(FFTCoeffsExtractor, self).extract_features(items)
 
-    def extract_fft_features(self, item):
-        print("item len:", len(item))
+    def validate_items_length(self, items):
+        lengths=map(len, items)
+        if len(set(lengths))!=1:
+            raise ValueError("Current implementation only supports"
+                             " same-sized items")
+
+    def extract_item_features(self, item):
         axes_coeffs=[self.process_single_axis(item[axis])
                      for axis in ("x", "y", "z")]        
         all_coeffs=list(itertools.chain.from_iterable(axes_coeffs))
-        #print("all item coeffs:", all_coeffs)
         return all_coeffs
 
     def process_single_axis(self, item):
         spectrum=self.get_spectrum(item.values)
-        print("requires all data to be the same length!")
         amplitudes=list(zip(*spectrum))[1]
         # peaks=self.find_spectrum_peaks(spectrum)
         # sorted_peaks=sorted(peaks, key=lambda pair: -pair[1])

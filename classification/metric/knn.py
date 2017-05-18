@@ -1,7 +1,6 @@
 
 from classification.metric.metric_classifier import MetricClassifier, TrainedModel, compute_metric_table
 from sklearn import neighbors
-import numpy as np
 
 
 class KNNClassifier(MetricClassifier):
