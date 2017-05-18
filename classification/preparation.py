@@ -40,25 +40,34 @@ def strip_logs(logs):
 
 
 def split_logs(logs, chunk_duration):
-
-    def get_chunks(log):
-        log_duration=max(log.index)-min(log.index)
-        num_borders=log_duration//chunk_duration
-
-        def border_for_moment(moment):
-            found=np.where(log.index>=moment)[0][0]
-            return found
-            
-        split_moments=[min(log.index)+chunk_duration*mul 
-                       for mul in range(1, num_borders+1)]
-        #print("split at:", split_moments)
-        border_indices=[border_for_moment(mt) 
-                        for mt in split_moments]
-        chunks=np.split(log, border_indices)
-        return chunks[:-1]
-
-    return list(itertools.chain.from_iterable([get_chunks(log) 
+    return list(itertools.chain.from_iterable([get_chunks(log, chunk_duration) 
                                                for log in logs]))
+
+def get_chunks(log, chunk_duration):
+    if log.empty:
+        raise InvalidLogException("Cannot split empty log")
+
+    freq_str=pd.infer_freq(log.index)    
+    period=pd.to_timedelta(pd.tseries.frequencies.to_offset(freq_str))
+    log_duration=pd.Timedelta(microseconds=len(log)*period.microseconds)
+
+    secs=lambda delta: delta.total_seconds()
+    total_chunks=int(np.ceil(secs(log_duration)/secs(chunk_duration)))
+    num_borders=int(total_chunks)-1
+    full_chunks=int(np.floor(secs(log_duration)/secs(chunk_duration)))
+
+    def border_for_moment(moment):
+        found=np.where(log.index>=moment)[0][0]
+        return found
+            
+    split_moments=[min(log.index)+chunk_duration*mul 
+                   for mul in range(1, num_borders+1)]
+    border_indices=[border_for_moment(mt) 
+                    for mt in split_moments]
+    chunks=np.split(log, border_indices)
+    
+    return chunks[:full_chunks]
+
 
 
 def split_items_set_XXX(all_items):
@@ -106,18 +115,17 @@ def split_items_set(all_items):
 
 
 def get_classified_chunks(location, classes, duration):
-    print("\n fix chunk split algorithm ? \n")
-
     def chunks_for_log(cls):
         classified_logs=collect_class_logs(cls, location)
         cut_logs=strip_logs(classified_logs)
         chunks=split_logs(cut_logs, duration)
         return chunks
-        
-    # classified_chunks=[(chunk, cls)
-    #                    for cls in classes
-    #                    for chunk in chunks_for_log(cls)]
+
     classified_chunks={cls: chunks_for_log(cls)
                        for cls in classes}
 
     return classified_chunks
+
+
+class InvalidLogException(Exception):
+    pass
