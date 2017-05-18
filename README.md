@@ -1,5 +1,5 @@
 
-[![Build Status](https://travis-ci.org/fresheed/ActivityClassifier.svg)](Build status)
+[![Build Status](https://travis-ci.org/fresheed/ActivityClassifier.svg)](https://travis-ci.org/fresheed/ActivityClassifier)
 
 
 # ActivityClassifier
