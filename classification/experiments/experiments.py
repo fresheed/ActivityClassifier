@@ -53,12 +53,3 @@ def display_chunks_stats(classes, train_set, test_set):
     for cls in classes:
         print("%s: train %d, test %d" % (cls, train_size[cls],
                                          test_size[cls]))
-
-
-def to_timedelta(seconds):
-    return datetime.timedelta(seconds=seconds)
-
-
-
-
-        
