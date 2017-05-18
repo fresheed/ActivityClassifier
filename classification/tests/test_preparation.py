@@ -14,6 +14,14 @@ class SplitTestSuite(unittest.TestCase):
         with self.assertRaises(InvalidLogException):
             get_chunks(frame, pd.to_timedelta("1s"))
 
+    def test_unsufficient_chunk(self):
+        timestamps=pd.date_range(pd.datetime.today(),
+                                 freq="100ms", 
+                                 periods=5).tolist()
+        frame=pd.Series(range(0, 5), index=timestamps).to_frame()
+        chunks=get_chunks(frame, pd.to_timedelta("1s"))
+        self.assertEqual(0, len(chunks))
+
     def test_exact_single_chunk(self):
         timestamps=pd.date_range(pd.datetime.today(),
                                  freq="100ms", 
