@@ -14,12 +14,10 @@ class FFTCoeffsExtractor(FeatureExtractor):
     def extract_features(self, items):
         features=[self.extract_fft_features(item) 
                   for item in items]
-        #print("freqs:", features)
-        print("\n refactor it! \n")
         return features
 
     def extract_fft_features(self, item):
-        self.axis=1
+        print("item len:", len(item))
         axes_coeffs=[self.process_single_axis(item[axis])
                      for axis in ("x", "y", "z")]        
         all_coeffs=list(itertools.chain.from_iterable(axes_coeffs))
@@ -28,16 +26,19 @@ class FFTCoeffsExtractor(FeatureExtractor):
 
     def process_single_axis(self, item):
         spectrum=self.get_spectrum(item.values)
-        peaks=self.find_spectrum_peaks(spectrum)
-        sorted_peaks=sorted(peaks, key=lambda pair: -pair[1])
-        top_peaks_freqs=[peak[0] for peak in sorted_peaks][:2]
-        return top_peaks_freqs
+        print("requires all data to be the same length!")
+        amplitudes=list(zip(*spectrum))[1]
+        # peaks=self.find_spectrum_peaks(spectrum)
+        # sorted_peaks=sorted(peaks, key=lambda pair: -pair[1])
+        # top_peaks_freqs=[peak[0] for peak in sorted_peaks][:3]
+        return amplitudes
 
     def get_spectrum(self, signal):
         freqs=np.fft.fftfreq(len(signal))
         spectrum=np.fft.fftn(signal)
         magnitudes=abs(spectrum)
         up_to=len(freqs)//2
+        #joined=list(zip(freqs[1:up_to], magnitudes[1:up_to]))
         joined=list(zip(freqs[1:up_to], magnitudes[1:up_to]))
         return joined
 
