@@ -5,4 +5,5 @@
 *.jar
 *raw_logs*
 *.txt
+!requirements.txt
 *#*
