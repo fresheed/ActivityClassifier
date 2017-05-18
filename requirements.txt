@@ -1,6 +1,6 @@
-hmmlearn==0.2.0
-numpy==1.12.1
-pandas==0.19.2
-scikit-learn==0.18.1
-statsmodels==0.8.0
-ucrdtw==0.0.0
+hmmlearn
+numpy
+pandas
+scikit-learn
+statsmodels
+ucrdtw
