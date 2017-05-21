@@ -18,3 +18,4 @@ if __name__=="__main__":
              "/ActivityClassifier/parse/parsed_logs/")
     classes=["pushups5_", "walk50_", "sits10_", "typing_"]
     DTWExperiment().run(log_dir, classes)
+

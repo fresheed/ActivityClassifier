@@ -1,30 +1,28 @@
 from sklearn.metrics import confusion_matrix
 from sklearn.utils.multiclass import unique_labels
-from collections import Counter
 import numpy as np
-import pandas as pd
-from classification.preparation import get_classified_chunks, split_items_set
+from classification.preparation import split_items_set
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GridSearchCV
 
 
 class Experiment(object):
-    chunk_duration_seconds=3
 
-    def run(self, log_dir, classes):
-        chunk_duration=pd.to_timedelta("%ds" % Experiment.chunk_duration_seconds)
-        classified_chunks=get_classified_chunks(log_dir, classes, 
-                                                chunk_duration)
+    def __init__(self, experiment_config):
+        self.experiment_config=experiment_config
+        self.transformer_config=experiment_config.transformer_config
+        self.classifier_config=experiment_config.classifier_config
 
+    def run(self, classified_chunks):
         train_set, test_set=split_items_set(classified_chunks)
-        display_chunks_stats(classes, train_set, test_set)
 
-        transformer=self.transformer
-        transformer_params={"transformer__%s" % key: value
-                            for key, value in self.transformer_params.items()}
-        classifier=self.classifier
-        classifier_params={"classifier__%s" % key: value
-                           for key, value in self.classifier_params.items()}
+        transformer=self.transformer_config.estimator
+        transformer_params=self.pack_params(self.transformer_config.params,
+                                            "transformer")
+        classifier=self.classifier_config.estimator
+        classifier_params=self.pack_params(self.classifier_config.params,
+                                           "classifier")
+ 
         pipeline=Pipeline(steps=(
             ("transformer", transformer),
             ("classifier", classifier),
@@ -32,15 +30,26 @@ class Experiment(object):
 
         params=dict(transformer_params)
         params.update(classifier_params)
-        searcher=GridSearchCV(pipeline, param_grid=params)
+        searcher=GridSearchCV(pipeline, scoring="f1_macro", param_grid=params)
 
         train_items, train_classes=zip(*train_set)
         test_items, test_classes=zip(*test_set)
         searcher.fit(train_items, train_classes)
         classified=searcher.predict(test_items)
         confmat=ConfusionMatrix(test_classes, classified)
-        display_accuracy(confmat)
-        print("Best params:", searcher.best_params_)
+        best_params=searcher.best_params_
+        return ExperimentResult(confmat, best_params)
+
+    def pack_params(self, params, prefix):
+        return {"%s__%s" % (prefix, key): value
+                for key, value in params.items()}
+
+
+class ExperimentResult(object):
+    
+    def __init__(self, confmat, best_params):
+        self.confmat=confmat
+        self.best_params=best_params
 
 
 class ConfusionMatrix(object):
@@ -57,17 +66,3 @@ class ConfusionMatrix(object):
         total=np.sum(confmat)
         accuracy=guessed/total
         return accuracy
-
-
-def display_accuracy(confmat):
-    print("Confusion for %s:" % confmat.classes)
-    print(confmat.confmat)
-    print("Accuracy: %f" % confmat.accuracy)
-
-
-def display_chunks_stats(classes, train_set, test_set):
-    train_size=Counter([entry[1] for entry in train_set])
-    test_size=Counter([entry[1] for entry in test_set])
-    for cls in classes:
-        print("%s: train %d, test %d" % (cls, train_size[cls],
-                                         test_size[cls]))

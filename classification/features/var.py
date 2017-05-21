@@ -21,10 +21,3 @@ class MultiARFeatureExtractor(LogFeatureExtractor):
         coeffs=model_fit.params
         selected=coeffs.values[1:] # skip const weight
         return selected
-
-    def get_params(self):
-        
-        
-
-
-
