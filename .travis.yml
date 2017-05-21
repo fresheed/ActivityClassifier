@@ -6,6 +6,7 @@ branches:
 language: python
 python:
 - 3.4
+cache: pip
 
 # scipy deps should be installed system-wide?
 before_install:
