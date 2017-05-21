@@ -1,24 +1,13 @@
-from classification.preparation import get_classified_chunks, split_items_set
-from classification.experiments.experiments import Experiment, display_accuracy, display_chunks_stats
-from classification.features import mlp, fft
-import pandas as pd
+from classification.experiments.experiments import Experiment
+from classification.features import fft
+from sklearn.neural_network import MLPClassifier
 
 
 class FFTExperiment(Experiment):
-    
-    def run(self, log_dir, classes):
-        classified_chunks=get_classified_chunks(log_dir, classes, 
-                                                pd.to_timedelta("3s"))
-
-        train_set, test_set=split_items_set(classified_chunks)
-        display_chunks_stats(classes, train_set, test_set)
-
-        extractor=fft.FFTCoeffsExtractor()
-        
-        classifier=mlp.MLPClassifier(extractor)
-
-        confmat=self.explore_classifier(classifier, train_set, test_set)
-        display_accuracy(confmat)
+    transformer=fft.FFTCoeffsExtractor()
+    transformer_params={}
+    classifier=MLPClassifier()
+    classifier_params={}
 
 
 if __name__=="__main__":

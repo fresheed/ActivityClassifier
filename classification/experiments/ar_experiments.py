@@ -1,28 +1,17 @@
-from classification.preparation import get_classified_chunks, split_items_set
-from classification.experiments.experiments import Experiment, display_accuracy, display_chunks_stats
-from classification.features import mlp, var
-import pandas as pd
+from classification.experiments.experiments import Experiment
+from classification.features import var
+from sklearn.neural_network import MLPClassifier
 
 
-class ARExperiment(Experiment):
-    
-    def run(self, log_dir, classes):
-        classified_chunks=get_classified_chunks(log_dir, classes, 
-                                                pd.to_timedelta("3s"))
-
-        train_set, test_set=split_items_set(classified_chunks)
-        display_chunks_stats(classes, train_set, test_set)
-
-        extractor=var.VARCoeffsExtractor()
-        
-        classifier=mlp.MLPClassifier(extractor)
-
-        confmat=self.explore_classifier(classifier, train_set, test_set)
-        display_accuracy(confmat)
+class MultiAR_MLP(Experiment):
+    transformer=var.MultiARFeatureExtractor()
+    transformer_params={"model_order": [5, 7, 9]}
+    classifier=MLPClassifier()
+    classifier_params={}
 
 
 if __name__=="__main__":
     log_dir=("/home/fresheed/research/diploma"
              "/ActivityClassifier/parse/parsed_logs/")
     classes=["pushups5_", "walk50_", "sits10_", "typing_"]
-    ARExperiment().run(log_dir, classes)
+    MultiAR_MLP().run(log_dir, classes)
