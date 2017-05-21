@@ -15,5 +15,4 @@ install:
 - pip install dropbox
 
 script:
-- python -m parse.ci_load_logs $dropbox_token local_dir
-- python -m unittest discover
+- ./ci_runner.sh
