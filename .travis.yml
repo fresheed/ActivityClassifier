@@ -12,5 +12,8 @@ before_install:
 - sudo apt-get build-dep python-scipy
 install:
 - pip install -r requirements.txt
+- pip install dropbox
 
-script: python -m unittest discover
+script:
+- python -m parse.ci_load_logs $dropbox_token local_dir
+- python -m unittest discover
