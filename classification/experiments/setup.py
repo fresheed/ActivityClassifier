@@ -1,6 +1,4 @@
-from classification.features import var
-from classification.features import fft
-from classification.features import hmm
+from classification.features import var, fft, hmm, wavelets
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neural_network import MLPClassifier
 from classification.metric import dtw
@@ -27,7 +25,10 @@ feature_transformers={
     "fft": EstimatorConfig(fft.FFTCoeffsExtractor(),
                            {}),
     "var": EstimatorConfig(var.MultiARFeatureExtractor(),
-                           {"model_order": [5, 7, 9]})
+                           {"model_order": [5, 7, 9]}),
+    "wl": EstimatorConfig(wavelets.WaveletsFeaturesExtractor(),
+                          {}),
+    
 }
 
 
