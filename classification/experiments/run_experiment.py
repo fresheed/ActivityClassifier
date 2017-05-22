@@ -69,11 +69,11 @@ if __name__=="__main__":
     configs=get_configs(args.algorithm)
     for config in configs:
         print()
-        print("Experiment: %s -> %s ..." %
-        experiment=experiments.Experiment(config)
-        result=experiment.run(classified_chunks)
+        print("Experiment: %s -> %s" %
               (estimator_name(config.transformer_config),
                estimator_name(config.classifier_config)))
+        experiment=experiments.Experiment(config)
+        result=experiment.run(classified_chunks)
         display_accuracy(result.confmat)
         print("Best params:", result.best_params)
 
