@@ -1,4 +1,4 @@
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, f1_score
 from sklearn.utils.multiclass import unique_labels
 import numpy as np
 from classification.preparation import split_items_set
@@ -60,6 +60,7 @@ class ConfusionMatrix(object):
         self.confmat=confusion_matrix(expected, recognized,
                                       labels=self.classes)
         self.accuracy=self.compute_accuracy(self.confmat)
+        self.f1_score=f1_score(expected, recognized, average="macro")
 
     def compute_accuracy(self, confmat):
         guessed=np.trace(confmat)

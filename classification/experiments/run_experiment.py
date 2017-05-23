@@ -44,6 +44,7 @@ def display_accuracy(confmat):
     print("Confusion for %s:" % confmat.classes)
     print(confmat.confmat)
     print("Accuracy: %f" % confmat.accuracy)
+    print("F1 score: %f" % confmat.f1_score)
 
 
 def display_chunks_stats(classified_chunks):
