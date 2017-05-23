@@ -2,7 +2,7 @@ from classification.features import var, fft, hmm, wavelets, interpolation
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neural_network import MLPClassifier
 from classification.metric import dtw
-from sklearn import neighbors, lda
+from sklearn import neighbors, discriminant_analysis
 import pywt
 
 
@@ -53,7 +53,7 @@ feature_classifiers={
                            {}),
     "nb": EstimatorConfig(GaussianNB(),
                           {}),
-    "lda": EstimatorConfig(lda.LDA(),
+    "lda": EstimatorConfig(discriminant_analysis.LinearDiscriminantAnalysis(),
                            {}),
 }
 
