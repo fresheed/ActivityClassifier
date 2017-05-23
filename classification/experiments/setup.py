@@ -30,10 +30,10 @@ def get_wavelet_types():
 
 feature_transformers={
     "hmm_cov": EstimatorConfig(hmm.HMMOutCovarsExtractor(),
-                               {"num_states": [2, 3, 4],
+                               {"num_states": [3, 4],
                                 "covariance_type": ["diag", "full"]}),
     "hmm_abo": EstimatorConfig(hmm.HMMABOutExtractor(),
-                               {"num_states": [2, 3, 4],
+                               {"num_states": [3, 4],
                                 "covariance_type": ["diag", "full"]}),
     "fft": EstimatorConfig(fft.FFTCoeffsExtractor(),
                            {}),
