@@ -27,14 +27,6 @@ class HMMFeaturesExtractor(LogFeatureExtractor):
         raise NotImplemented("Subclasses must specify it")
 
 
-class HMMABExtractor(HMMFeaturesExtractor):
-    
-    def get_hmm_features(self, model):
-        transmat=model.transmat_
-        startprobs=model.startprob_
-        return np.hstack([transmat.flatten(), startprobs.flatten()])
-
-
 class HMMABOutExtractor(HMMFeaturesExtractor):
     
     def get_hmm_features(self, model):
