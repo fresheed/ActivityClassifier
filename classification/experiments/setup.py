@@ -1,4 +1,4 @@
-from classification.features import var, fft, hmm, wavelets
+from classification.features import var, fft, hmm, wavelets, interpolation
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neural_network import MLPClassifier
 from classification.metric import dtw
@@ -37,8 +37,10 @@ feature_transformers={
                            {"model_order": [5, 7, 9]}),
     "wl": EstimatorConfig(wavelets.WaveletsFeaturesExtractor(),
                           {"wavelet_type": get_wavelet_types()}),
-    "interp": EstimatorConfig(fft.SpectrumInterpolator(),
+    "fft_interp": EstimatorConfig(fft.SpectrumInterpolator(),
                               {}),
+    "sig_interp": EstimatorConfig(interpolation.SignalInterpolator(),
+                                  {}),
 }
 
 

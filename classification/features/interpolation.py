@@ -1,0 +1,17 @@
+from classification.features.feature_extraction import LogFeatureExtractor
+import itertools
+
+
+class SignalInterpolator(LogFeatureExtractor):
+
+    def extract_item_features(self, item):
+        axes_coeffs=[self.process_single_axis(item[axis])
+                     for axis in ("x", "y", "z")]        
+        all_coeffs=list(itertools.chain.from_iterable(axes_coeffs))
+        return all_coeffs
+
+    def process_single_axis(self, item):
+        signal=item.values
+        from scipy.interpolate import splrep
+        output=splrep(range(len(signal)), signal, k=2)
+        return output[1]
