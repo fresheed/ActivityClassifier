@@ -37,6 +37,8 @@ feature_transformers={
                            {"model_order": [5, 7, 9]}),
     "wl": EstimatorConfig(wavelets.WaveletsFeaturesExtractor(),
                           {"wavelet_type": get_wavelet_types()}),
+    "interp": EstimatorConfig(fft.SpectrumInterpolator(),
+                              {}),
 }
 
 
