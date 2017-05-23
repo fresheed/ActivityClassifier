@@ -29,8 +29,15 @@ def get_wavelet_types():
 
 
 feature_transformers={
-    "hmm": EstimatorConfig(hmm.HMMCoeffsExtractor(),
-                           {}),
+    "hmm_ab": EstimatorConfig(hmm.HMMABExtractor(),
+                              {"num_states": [2, 3, 4],
+                               "covariance_type": ["diag", "full"]}),
+    "hmm_cov": EstimatorConfig(hmm.HMMOutCovarsExtractor(),
+                               {"num_states": [2, 3, 4],
+                                "covariance_type": ["diag", "full"]}),
+    "hmm_abo": EstimatorConfig(hmm.HMMABOutExtractor(),
+                               {"num_states": [2, 3, 4],
+                                "covariance_type": ["diag", "full"]}),
     "fft": EstimatorConfig(fft.FFTCoeffsExtractor(),
                            {}),
     "var": EstimatorConfig(var.MultiARFeatureExtractor(),
