@@ -3,7 +3,7 @@ from sklearn.utils.multiclass import unique_labels
 import numpy as np
 from classification.preparation import split_items_set
 from sklearn.pipeline import Pipeline
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import GridSearchCV, StratifiedKFold
 
 
 class Experiment(object):
@@ -30,8 +30,11 @@ class Experiment(object):
 
         params=dict(transformer_params)
         params.update(classifier_params)
+
+        fold_maker=StratifiedKFold(n_splits=4)
+ 
         searcher=GridSearchCV(pipeline, scoring="f1_macro", 
-                              param_grid=params, cv=4,
+                              param_grid=params, cv=fold_maker,
                               n_jobs=4)
 
         train_items, train_classes=zip(*train_set)
