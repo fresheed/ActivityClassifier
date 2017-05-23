@@ -52,6 +52,29 @@ def display_chunks_stats(classified_chunks):
         print("%s: total %d items" % (cls, len(chunks)))
 
 
+def run_with_config(config):
+    print()
+    print("Experiment: %s -> %s" %
+          (estimator_name(config.transformer_config),
+           estimator_name(config.classifier_config)))
+    experiment=experiments.Experiment(config)
+    result=experiment.run(classified_chunks)
+    return result
+
+
+def display_results(results):
+    ordered=reversed(sorted(results, key=lambda res: res[1].confmat.f1_score))
+    for index, result in enumerate(ordered):
+        config, output=result
+        print()
+        print("%d: Experiment: %s -> %s" %
+              (index,
+               estimator_name(config.transformer_config),
+               estimator_name(config.classifier_config)))
+        display_accuracy(output.confmat)
+        print("Best params:", output.best_params)
+
+
 if __name__=="__main__":
     parser=ArgumentParser()
     parser.add_argument("--algorithm", required=True,
@@ -68,15 +91,11 @@ if __name__=="__main__":
     display_chunks_stats(classified_chunks)
     
     configs=get_configs(args.algorithm)
-    for config in configs:
-        print()
-        print("Experiment: %s -> %s" %
-              (estimator_name(config.transformer_config),
-               estimator_name(config.classifier_config)))
-        experiment=experiments.Experiment(config)
-        result=experiment.run(classified_chunks)
-        display_accuracy(result.confmat)
-        print("Best params:", result.best_params)
+    outputs=[run_with_config(config) for config in configs]
+    results=zip(configs, outputs)
+    display_results(results)
+    
+    
 
 
 
