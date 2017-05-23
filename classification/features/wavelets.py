@@ -2,9 +2,14 @@
 from classification.features.feature_extraction import LogFeatureExtractor
 import itertools
 import pywt
+import numpy as np
 
 
 class WaveletsFeaturesExtractor(LogFeatureExtractor):
+
+    def __init__(self, wavelet_type=None):
+        super(WaveletsFeaturesExtractor, self).__init__()
+        self.wavelet_type=wavelet_type
 
     def extract_features(self, items):
         self.validate_items_length(items)
@@ -23,5 +28,6 @@ class WaveletsFeaturesExtractor(LogFeatureExtractor):
         return all_coeffs
 
     def process_single_axis(self, item):
-        approx, details=pywt.dwt(item.values, "db2")
-        return approx+details
+        wavelet_type=self.get_params()["wavelet_type"]
+        approx, details=pywt.dwt(item.values, wavelet_type)
+        return np.hstack([approx, details])
