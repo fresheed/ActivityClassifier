@@ -30,7 +30,8 @@ class Experiment(object):
 
         params=dict(transformer_params)
         params.update(classifier_params)
-        searcher=GridSearchCV(pipeline, scoring="f1_macro", param_grid=params)
+        searcher=GridSearchCVe(pipeline, scoring="f1_macro", 
+                               param_grid=params, cv=4)
 
         train_items, train_classes=zip(*train_set)
         test_items, test_classes=zip(*test_set)
