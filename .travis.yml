@@ -13,7 +13,7 @@ before_install:
 - sudo apt-get build-dep python-scipy
 install:
 - pip install -r requirements.txt
-- pip install dropbox
+- pip install dropbox==7.1.0 # unknown import issues with newer version?
 
 script:
 - ./ci_runner.sh
