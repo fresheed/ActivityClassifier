@@ -70,4 +70,4 @@ metric_classifiers={
 }
 
 
-chunk_duration_seconds=3
+chunk_duration_seconds=1
