@@ -37,9 +37,10 @@ feature_transformers={
                                 "covariance_type": ["diag", "full"]}),
     "fft": EstimatorConfig(fft.FFTCoeffsExtractor(),
                            {}),
-    "var": EstimatorConfig(var.MultiARFeatureExtractor(),
-                           #{"model_order": [5, 7, 9]}),
-                           {"model_order": [5, 7,]}),
+    # removed because we need to speed up CI build
+    # "var": EstimatorConfig(var.MultiARFeatureExtractor(), 
+    #                        #{"model_order": [5, 7, 9]}),
+    #                        {"model_order": [5, 7,]}),
     "wl": EstimatorConfig(wavelets.WaveletsFeaturesExtractor(),
                           {"wavelet_type": get_wavelet_types()}),
     "fft_interp": EstimatorConfig(fft.SpectrumInterpolator(),
