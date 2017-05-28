@@ -31,7 +31,7 @@ class Experiment(object):
         params=dict(transformer_params)
         params.update(classifier_params)
 
-        fold_maker=StratifiedKFold(n_splits=4)
+        fold_maker=StratifiedKFold(n_splits=5)
  
         searcher=GridSearchCV(pipeline, scoring="f1_macro", 
                               param_grid=params, cv=fold_maker,
