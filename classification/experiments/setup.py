@@ -21,11 +21,11 @@ class ExperimentConfig(object):
 
 
 def get_wavelet_types():
-    lib_types=pywt.wavelist()    
-    invalid_types=["cgau", "cmor", "fbsp", "gaus", "mexh", "morl", "shan"]
-    working=lambda name: not any(map(name.startswith, invalid_types))
-    working_types=filter(working, lib_types)
-    return list(working_types)
+    # manually selected top
+    working_types=['sym17', 'rbio2.2', 'sym20', 'sym16', 'sym12', 'sym19',
+                   'sym13', 'sym14', 'rbio3.1', 'sym18', 'sym11', 'sym8',
+                   'sym15', 'sym9', 'sym10']
+    return working_types
 
 
 feature_transformers={

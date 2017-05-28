@@ -35,11 +35,13 @@ class Experiment(object):
  
         searcher=GridSearchCV(pipeline, scoring="f1_macro", 
                               param_grid=params, cv=fold_maker,
-                              n_jobs=4)
+                              n_jobs=4, verbose=3)
 
         train_items, train_classes=zip(*train_set)
         test_items, test_classes=zip(*test_set)
         searcher.fit(train_items, train_classes)
+        print("cv results:")
+        print(searcher.cv_results_)
         classified=searcher.predict(test_items)
         confmat=ConfusionMatrix(test_classes, classified)
         best_params=searcher.best_params_
