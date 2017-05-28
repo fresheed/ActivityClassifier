@@ -47,6 +47,8 @@ feature_transformers={
                                   {}),
     "sig_interp": EstimatorConfig(interpolation.SignalInterpolator(),
                                   {}),
+    "stft": EstimatorConfig(fft.STFTCoeffsExtractor(),
+                            {}),
 }
 
 
