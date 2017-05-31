@@ -16,10 +16,8 @@ def collect_class_logs(class_name, log_dir):
                           index_col=0, encoding="utf-8-sig",
                           converters={0: to_dt},
                           names=["TS", "x", "y", "z"])
-        
-        req_period=datetime.timedelta(milliseconds=100)
-        even_frame=frame.resample(req_period).mean().interpolate()
-
+        required_period_ms=100
+        even_frame=downsample(frame, required_period_ms)
         return even_frame
 
     to_select=lambda path: path.startswith(class_name)
@@ -27,6 +25,12 @@ def collect_class_logs(class_name, log_dir):
     return [read_log(os.path.join(log_dir, log_file)) 
             for log_file in selected_files]
 
+
+def downsample(full_log, milliseconds):
+    req_period=datetime.timedelta(milliseconds=milliseconds)
+    even_frame=full_log.resample(req_period).mean().interpolate()
+    return even_frame
+    
 
 def strip_logs(logs):
     start_cutoff=datetime.timedelta(seconds=1.5)
