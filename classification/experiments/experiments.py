@@ -12,9 +12,11 @@ class Experiment(object):
         self.transformer_config=experiment_config.transformer_config
         self.classifier_config=experiment_config.classifier_config
 
-    def run(self, classified_chunks):
+    def run(self, classified_chunks, seed=None):
+        if not seed:
+            seed=np.random.randint(0, 1e6)
         items, classes=zip(*classified_chunks)
-        train_items, test_items, train_classes, test_classes=train_test_split(items, classes, test_size=0.3)
+        train_items, test_items, train_classes, test_classes=train_test_split(items, classes, test_size=0.3, stratify=classes, random_state=seed)
 
         model=self.get_optimal_model(train_items, train_classes)
 
