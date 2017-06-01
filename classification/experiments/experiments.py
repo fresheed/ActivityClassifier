@@ -39,11 +39,12 @@ class Experiment(object):
 
         train_items, train_classes=zip(*train_set)
         test_items, test_classes=zip(*test_set)
-        searcher.fit(train_items, train_classes)
-        print("cv results:")
-        print(searcher.cv_results_)
-        classified=searcher.predict(test_items)
-        confmat=ConfusionMatrix(test_classes, classified)
+        items=train_items+test_items
+        classes=train_classes+test_classes
+        searcher.fit(items, classes)
+
+        classified=searcher.predict(items)
+        confmat=ConfusionMatrix(classes, classified)
         best_params=searcher.best_params_
         return ExperimentResult(confmat, best_params)
 
