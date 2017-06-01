@@ -1,7 +1,6 @@
 from sklearn.metrics import confusion_matrix, f1_score
 from sklearn.utils.multiclass import unique_labels
 import numpy as np
-from classification.preparation import split_items_set
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GridSearchCV, StratifiedKFold
 
@@ -14,7 +13,6 @@ class Experiment(object):
         self.classifier_config=experiment_config.classifier_config
 
     def run(self, classified_chunks):
-        train_set, test_set=split_items_set(classified_chunks)
 
         transformer=self.transformer_config.estimator
         transformer_params=self.pack_params(self.transformer_config.params,
@@ -37,10 +35,7 @@ class Experiment(object):
                               param_grid=params, cv=fold_maker,
                               n_jobs=4)
 
-        train_items, train_classes=zip(*train_set)
-        test_items, test_classes=zip(*test_set)
-        items=train_items+test_items
-        classes=train_classes+test_classes
+        items, classes=zip(*classified_chunks)
         searcher.fit(items, classes)
 
         classified=searcher.predict(items)

@@ -57,13 +57,13 @@ class STFTCoeffsExtractor(LogFeatureExtractor):
         return all_coeffs
 
     def process_single_axis(self, item):
-        fs, ts, coeffs=signal.stft(item.values,)
+        boundary_type="even"        
+        fs, ts, coeffs=signal.stft(item.values, 
+                                   nperseg=len(item.values)//2, 
+                                   noverlap=0,
+                                   boundary=boundary_type)
         plain_coeffs=coeffs.flatten()
         magnitudes=np.abs(plain_coeffs)
-        # print("fs:", fs)
-        # print("ts:", ts)
-        # print("coeffs:", coeffs)
-        # raise ValueError("stop")
         return magnitudes
 
 

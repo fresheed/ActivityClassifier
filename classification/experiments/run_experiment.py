@@ -51,8 +51,13 @@ def display_accuracy(confmat):
 
 
 def display_chunks_stats(classified_chunks):
-    for cls, chunks in classified_chunks.items():
-        print("%s: total %d items" % (cls, len(chunks)))
+    classes=set(pair[1] for pair in classified_chunks)
+    # for cls, chunks in classified_chunks.items():
+    #     print("%s: total %d items" % (cls, len(chunks)))
+    for cls in classes:
+        amount_matching=len([pair for pair in classified_chunks
+                             if pair[1]==cls])
+        print("%s: total %d items" % (cls, amount_matching))
 
 
 def run_with_config(config):

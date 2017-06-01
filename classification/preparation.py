@@ -4,7 +4,6 @@ import os
 import datetime
 import numpy as np
 import itertools
-from collections import Counter
 
 
 def collect_class_logs(class_name, log_dir):
@@ -47,6 +46,7 @@ def split_logs(logs, chunk_duration):
     return list(itertools.chain.from_iterable([get_chunks(log, chunk_duration) 
                                                for log in logs]))
 
+
 def get_chunks(log, chunk_duration):
     if log.empty:
         raise InvalidLogException("Cannot split empty log")
@@ -73,51 +73,6 @@ def get_chunks(log, chunk_duration):
     return chunks[:full_chunks]
 
 
-
-def split_items_set_XXX(all_items):
-    test_rate=0.3
-    classes_stats=lambda items: Counter([entry[1] for entry in items])
-    mentioned_classes=classes_stats(all_items).keys()
-
-    def validate_set(items_set):
-        if any(classes_stats(items_set)[cls]==0
-               for cls in mentioned_classes):
-            raise ValueError("Invalid split algorithm")  
-
-    def split():
-        split_at=int(len(all_items)*(1-test_rate))
-        randomized=np.random.permutation(all_items)
-        train_set, test_set=randomized[:split_at], randomized[split_at:]
-        validate_set(test_set)
-        validate_set(train_set)
-        return train_set, test_set
-
-    attempts=0
-    while True:
-        try:
-            train_set, test_set=split()
-            return train_set, test_set
-        except ValueError:
-            attempts+=1
-            if attempts >= 2:
-                raise ValueError("Cannot split chunks")
-
-
-def split_items_set(all_items):
-    test_rate=0.3
-    train_set=[]
-    test_set=[]
-    for cls, items in all_items.items():
-        split_at=int(len(items)*(1-test_rate))
-        _tmp_items = np.empty(len(items), dtype=object)
-        _tmp_items[:]= items
-        randomized=np.random.permutation(_tmp_items)
-        train_items, test_items=randomized[:split_at], randomized[split_at:]
-        train_set.extend([(item, cls) for item in train_items])
-        test_set.extend([(item, cls) for item in test_items])
-    return train_set, test_set        
-
-
 def get_classified_chunks(location, classes, duration):
     def chunks_for_log(cls):
         classified_logs=collect_class_logs(cls, location)
@@ -125,8 +80,10 @@ def get_classified_chunks(location, classes, duration):
         chunks=split_logs(cut_logs, duration)
         return chunks
 
-    classified_chunks={cls: chunks_for_log(cls)
-                       for cls in classes}
+    expanded_cls=lambda cls: [(chunk, cls)
+                              for chunk in chunks_for_log(cls)]
+    flat_by_cls=map(expanded_cls, classes)
+    classified_chunks=list(itertools.chain.from_iterable(flat_by_cls))
 
     return classified_chunks
 
