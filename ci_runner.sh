@@ -9,7 +9,7 @@ echo "Files loaded to $local_logs_dir"
 python3 -m unittest discover
 
 python3 -m classification.experiments.run_experiment \
-    --algorithm all \
+    --algorithm ci \
     --log_dir $local_logs_dir \
     --classes pushups5_ walk50_ sits10_ typing_
 

@@ -2,16 +2,18 @@ from argparse import ArgumentParser
 from classification.experiments import setup, experiments
 from classification.preparation import get_classified_chunks
 import itertools
-from collections import Counter
 import pandas as pd
 
 
 def get_configs(algorithm):
-    if algorithm=="all":
+    if algorithm in ["all", "ci"]:
+        context=setup.RunContext[algorithm.upper()]
         feature_configs=get_all_algorithm_configs(setup.feature_transformers,
-                                                  setup.feature_classifiers)
+                                                  setup.feature_classifiers,
+                                                  context)
         metric_configs=get_all_algorithm_configs(setup.metric_transformers,
-                                                 setup.metric_classifiers)
+                                                 setup.metric_classifiers,
+                                                 context)
         setups=feature_configs+metric_configs
         return setups
     else:
@@ -27,9 +29,10 @@ def get_configs(algorithm):
         return [config, ]
 
 
-def get_all_algorithm_configs(transformers, classifiers):
-    transformers=transformers.values()
-    classifiers=classifiers.values()
+def get_all_algorithm_configs(transformers, classifiers, context):
+    context_matches=lambda conf: conf.run_context>=context
+    transformers=filter(context_matches, transformers.values())
+    classifiers=filter(context_matches, classifiers.values())
     config_pairs=itertools.product(transformers, 
                                    classifiers)
     configs=[setup.ExperimentConfig(*params) for params in config_pairs]
@@ -78,7 +81,7 @@ def display_results(results):
 if __name__=="__main__":
     parser=ArgumentParser()
     parser.add_argument("--algorithm", required=True,
-                        choices=["metric", "features", "all"], )
+                        choices=["metric", "features", "all", "ci"], )
     parser.add_argument("--transformer")
     parser.add_argument("--classifier")
     parser.add_argument("--log_dir", required=True)
@@ -91,6 +94,9 @@ if __name__=="__main__":
     display_chunks_stats(classified_chunks)
     
     configs=get_configs(args.algorithm)
+    print("Configs to run:")
+    print("\n".join(map(str, configs)))
+
     outputs=[run_with_config(config) for config in configs]
     results=zip(configs, outputs)
     display_results(results)

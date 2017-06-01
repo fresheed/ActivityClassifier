@@ -35,7 +35,7 @@ class Experiment(object):
  
         searcher=GridSearchCV(pipeline, scoring="f1_macro", 
                               param_grid=params, cv=fold_maker,
-                              n_jobs=4, verbose=3)
+                              n_jobs=4)
 
         train_items, train_classes=zip(*train_set)
         test_items, test_classes=zip(*test_set)
