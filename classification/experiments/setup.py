@@ -1,4 +1,4 @@
-from classification.features import var, fft, hmm, wavelets, interpolation
+from classification.features import var, fft, hmm, wavelets, interpolation, raw
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neural_network import MLPClassifier
 from classification.metric import dtw
@@ -49,6 +49,8 @@ feature_transformers={
                                   {}),
     "stft": EstimatorConfig(fft.STFTCoeffsExtractor(),
                             {}),
+    "raw": EstimatorConfig(raw.RawExtractor(),
+                           {}),
 }
 
 
