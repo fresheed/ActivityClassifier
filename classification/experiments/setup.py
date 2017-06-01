@@ -55,7 +55,7 @@ feature_transformers={
 
 
 feature_classifiers={
-    "mlp": EstimatorConfig(MLPClassifier(),
+    "mlp": EstimatorConfig(MLPClassifier(activation="tanh"),
                            {}),
     "nb": EstimatorConfig(GaussianNB(),
                           {}),
