@@ -91,11 +91,13 @@ if __name__=="__main__":
     parser.add_argument("--classifier")
     parser.add_argument("--log_dir", required=True)
     parser.add_argument("--classes", required=True, nargs="+")
+    parser.add_argument("--keep_borders", action="store_true")
     args=parser.parse_args()
 
     chunk_duration=pd.to_timedelta("%ds" % setup.chunk_duration_seconds)
     classified_chunks=get_classified_chunks(args.log_dir, args.classes, 
-                                            chunk_duration)
+                                            chunk_duration, 
+                                            not args.keep_borders)
     display_chunks_stats(classified_chunks)
     
     configs=get_configs(args.algorithm)

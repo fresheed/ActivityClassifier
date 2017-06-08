@@ -1,7 +1,5 @@
 #! /bin/bash
 
-#javacommon_jar=/home/fresheed/AndroidStudioProjects/ActionLogger/javacommon/build/libs/javacommon.jar
-
 
 if [ -n "$1" ]; then
     filter="^$1_.*_log$"

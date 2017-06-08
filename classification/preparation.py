@@ -31,7 +31,7 @@ def downsample(full_log, milliseconds):
     return even_frame
     
 
-def strip_logs(logs):
+def strip_logs(logs, ):
     start_cutoff=datetime.timedelta(seconds=1.5)
     end_cutoff=datetime.timedelta(seconds=1.5)
     def strip_borders(frame):
@@ -43,6 +43,7 @@ def strip_logs(logs):
 
 
 def split_logs(logs, chunk_duration):
+    print("logs to split:", len(logs))
     return list(itertools.chain.from_iterable([get_chunks(log, chunk_duration) 
                                                for log in logs]))
 
@@ -73,10 +74,14 @@ def get_chunks(log, chunk_duration):
     return chunks[:full_chunks]
 
 
-def get_classified_chunks(location, classes, duration):
+def get_classified_chunks(location, classes, duration, strip_borders=True):
     def chunks_for_log(cls):
         classified_logs=collect_class_logs(cls, location)
-        cut_logs=strip_logs(classified_logs)
+        print("sb:", strip_borders)
+        if strip_borders:
+            cut_logs=strip_logs(classified_logs)
+        else:
+            cut_logs=classified_logs
         chunks=split_logs(cut_logs, duration)
         return chunks
 
