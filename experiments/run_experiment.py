@@ -1,5 +1,5 @@
 from argparse import ArgumentParser
-from classification.experiments import setup, experiments
+from experiments import setup, experiments
 from classification.preparation import get_classified_chunks
 import itertools
 import pandas as pd
