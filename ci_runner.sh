@@ -10,7 +10,7 @@ python3 -m unittest discover
 
 python3 -m experiments.run_experiment \
     --algorithm ci \
-    --logs_archives $logs_pathes \
+    --logs_archives $logs_archives \
     --classes pushups walk sits
 
 # --log_dir $local_logs_dir \
