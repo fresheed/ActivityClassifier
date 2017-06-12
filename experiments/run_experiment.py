@@ -103,13 +103,11 @@ def run_from_cli():
     parser.add_argument("--classifier")
     parser.add_argument("--log_dir", required=True)
     parser.add_argument("--classes", required=True, nargs="+")
-    parser.add_argument("--keep_borders", action="store_true")
     args=parser.parse_args()
 
     chunk_duration=pd.to_timedelta("%ds" % setup.chunk_duration_seconds)
     classified_chunks=get_classified_chunks(args.log_dir, args.classes, 
-                                            chunk_duration, 
-                                            not args.keep_borders)
+                                            chunk_duration, )
     train_set, test_set=split_items_set(classified_chunks)
     display_chunks_stats(classified_chunks)
     

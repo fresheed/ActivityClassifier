@@ -22,8 +22,9 @@ class Experiment(object):
         classified=model.predict(test_items)
 
         confmat=ConfusionMatrix(test_classes, classified)
+        best_index=model.best_index_
         best_params=model.best_params_
-        score_time=model.cv_results_["mean_score_time"]
+        score_time=model.cv_results_["mean_score_time"][best_index]
         return ExperimentResult(confmat, best_params, score_time)
 
     def get_optimal_model(self, items, classes):
