@@ -44,8 +44,8 @@ def split_items_set(classified_chunks):
     print("splitting %d logs" % len(classified_chunks))
     items, classes=zip(*classified_chunks)
     train_items, test_items, train_classes, test_classes=train_test_split(items, classes, test_size=0.3, stratify=classes)
-    train_set=zip(train_items, train_classes)
-    test_set=zip(test_items, test_classes)
+    train_set=list(zip(train_items, train_classes))
+    test_set=list(zip(test_items, test_classes))
     print("train/test: %d/%d" % (len(train_set), len(test_set)))
     return train_set, test_set
 

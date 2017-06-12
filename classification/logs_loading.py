@@ -77,7 +77,6 @@ def get_chunks(log, chunk_duration):
 def get_classified_chunks(location, classes, duration, strip_borders=True):
     def chunks_for_log(cls):
         classified_logs=collect_class_logs(cls, location)
-        print("sb:", strip_borders)
         if strip_borders:
             cut_logs=strip_logs(classified_logs)
         else:
