@@ -46,7 +46,6 @@ def strip_logs(logs):
 
 
 def split_logs(logs, chunk_duration):
-    print("logs to split:", len(logs))
     return list(itertools.chain.from_iterable([get_chunks(log, chunk_duration) 
                                                for log in logs]))
 

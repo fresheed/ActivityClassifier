@@ -7,6 +7,7 @@ from enum import IntEnum
 
 
 class RunContext(IntEnum):
+    LOCAL = 3
     CI = 2
     ALL = 1
 
@@ -33,9 +34,7 @@ class ExperimentConfig(object):
 
 def get_wavelet_types():
     # manually selected top
-    working_types=['sym17', 'rbio2.2', 'sym20', 'sym16', 'sym12', 'sym19',
-                   'sym13', 'sym14', 'rbio3.1', 'sym18', 'sym11', 'sym8',
-                   'sym15', 'sym9', 'sym10']
+    working_types=['rbio2.2', 'rbio3.1',]
     return working_types
 
 
@@ -47,7 +46,7 @@ feature_transformers={
     "hmm_abo": EstimatorConfig(hmm.HMMABOutExtractor(),
                                {"num_states": [3, 4],
                                 "covariance_type": ["diag", "full"]},
-                               RunContext.CI),
+                               RunContext.LOCAL),
     "fft": EstimatorConfig(fft.FFTCoeffsExtractor(),
                            {},
                            RunContext.CI),
@@ -56,26 +55,26 @@ feature_transformers={
                            RunContext.ALL),
     "wl": EstimatorConfig(wavelets.WaveletsFeaturesExtractor(),
                           {"wavelet_type": get_wavelet_types()},
-                          RunContext.CI),
+                          RunContext.LOCAL),
     "fft_interp": EstimatorConfig(fft.SpectrumInterpolator(),
                                   {},
                                   RunContext.CI),
     "sig_interp": EstimatorConfig(interpolation.SignalInterpolator(),
                                   {},
-                                  RunContext.CI),
+                                  RunContext.LOCAL),
     "stft": EstimatorConfig(fft.STFTCoeffsExtractor(),
                             {},
-                            RunContext.CI),
+                            RunContext.LOCAL),
     "raw": EstimatorConfig(raw.RawExtractor(),
                            {},
-                           RunContext.CI),
+                           RunContext.LOCAL),
 }
 
 
 feature_classifiers={
     "mlp": EstimatorConfig(MLPClassifier(activation="tanh"),
                            {},
-                           RunContext.CI),
+                           RunContext.LOCAL),
     "nb": EstimatorConfig(GaussianNB(),
                           {},
                           RunContext.CI),
