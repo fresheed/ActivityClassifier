@@ -43,7 +43,7 @@ feature_transformers={
     "hmm_cov": EstimatorConfig(hmm.HMMOutCovarsExtractor(),
                                {"num_states": [3, 4],
                                 "covariance_type": ["diag", "full"]},
-                               RunContext.CI),
+                               RunContext.ALL),
     "hmm_abo": EstimatorConfig(hmm.HMMABOutExtractor(),
                                {"num_states": [3, 4],
                                 "covariance_type": ["diag", "full"]},
