@@ -3,9 +3,10 @@ from experiments import setup, experiments
 from classification.preparation import get_classified_chunks
 import itertools
 import pandas as pd
+from sklearn.model_selection import train_test_split
 
 
-def get_configs(algorithm):
+def get_configs(algorithm, transformer_code, classifier_code):
     if algorithm in ["all", "ci"]:
         context=setup.RunContext[algorithm.upper()]
         feature_configs=get_all_algorithm_configs(setup.feature_transformers,
@@ -23,8 +24,8 @@ def get_configs(algorithm):
         elif algorithm=="features":
             transformers=setup.feature_transformers
             classifiers=setup.feature_classifiers
-        transformer=transformers[args.transformer]
-        classifier=classifiers[args.classifier]
+        transformer=transformers[transformer_code]
+        classifier=classifiers[classifier_code]
         config=setup.ExperimentConfig(transformer, classifier)
         return [config, ]
 
@@ -37,6 +38,14 @@ def get_all_algorithm_configs(transformers, classifiers, context):
                                    classifiers)
     configs=[setup.ExperimentConfig(*params) for params in config_pairs]
     return configs
+
+
+def split_items_set(classified_chunks):
+    items, classes=zip(*classified_chunks)
+    train_items, test_items, train_classes, test_classes=train_test_split(items, classes, test_size=0.3, stratify=classes)
+    train_set=zip(train_items, train_classes)
+    test_set=zip(test_items, test_classes)
+    return train_set, test_set
 
 
 def estimator_name(config):
@@ -60,13 +69,13 @@ def display_chunks_stats(classified_chunks):
         print("%s: total %d items" % (cls, amount_matching))
 
 
-def run_with_config(config):
+def run_with_config(config, train_set, test_set):
     print()
     print("Experiment: %s -> %s" %
           (estimator_name(config.transformer_config),
            estimator_name(config.classifier_config)))
     experiment=experiments.Experiment(config)
-    result=experiment.run(classified_chunks)
+    result=experiment.run(train_set, test_set)
     return result
 
 
@@ -81,9 +90,10 @@ def display_results(results):
                estimator_name(config.classifier_config)))
         display_accuracy(output.confmat)
         print("Best params:", output.best_params)
+        print("Score time: %f seconds" % output.score_time)
 
 
-if __name__=="__main__":
+def run_from_cli():
     parser=ArgumentParser()
     parser.add_argument("--algorithm", required=True,
                         choices=["metric", "features", "all", "ci"], )
@@ -98,17 +108,19 @@ if __name__=="__main__":
     classified_chunks=get_classified_chunks(args.log_dir, args.classes, 
                                             chunk_duration, 
                                             not args.keep_borders)
+    train_set, test_set=split_items_set(classified_chunks)
     display_chunks_stats(classified_chunks)
     
-    configs=get_configs(args.algorithm)
+    configs=get_configs(args.algorithm, args.transformer, args.classifier)
     print("Configs to run:")
     print("\n".join(map(str, configs)))
 
-    outputs=[run_with_config(config) for config in configs]
+    outputs=[run_with_config(config, train_set, test_set)
+             for config in configs]
     results=zip(configs, outputs)
     display_results(results)
-    
-    
 
 
+if __name__=="__main__":
+    run_from_cli()
 

@@ -2,7 +2,8 @@ from sklearn.metrics import confusion_matrix, f1_score
 from sklearn.utils.multiclass import unique_labels
 import numpy as np
 from sklearn.pipeline import Pipeline
-from sklearn.model_selection import GridSearchCV, StratifiedKFold, train_test_split
+from sklearn.model_selection import GridSearchCV, StratifiedKFold
+from collections import namedtuple
 
 
 class Experiment(object):
@@ -12,18 +13,18 @@ class Experiment(object):
         self.transformer_config=experiment_config.transformer_config
         self.classifier_config=experiment_config.classifier_config
 
-    def run(self, classified_chunks, seed=None):
-        if not seed:
-            seed=np.random.randint(0, 1e6)
-        items, classes=zip(*classified_chunks)
-        train_items, test_items, train_classes, test_classes=train_test_split(items, classes, test_size=0.3, stratify=classes, random_state=seed)
+    def run(self, train_set, test_set):
+        train_items, train_classes=zip(*train_set)
+        test_items, test_classes=zip(*test_set)
 
         model=self.get_optimal_model(train_items, train_classes)
 
         classified=model.predict(test_items)
+
         confmat=ConfusionMatrix(test_classes, classified)
         best_params=model.best_params_
-        return ExperimentResult(confmat, best_params)
+        score_time=model.cv_results_["mean_score_time"]
+        return ExperimentResult(confmat, best_params, score_time)
 
     def get_optimal_model(self, items, classes):
         searcher=self.build_optimizer()
@@ -63,11 +64,8 @@ class Experiment(object):
                 for key, value in params.items()}
 
 
-class ExperimentResult(object):
-    
-    def __init__(self, confmat, best_params):
-        self.confmat=confmat
-        self.best_params=best_params
+ExperimentResult=namedtuple("ExperimentResult", 
+                            ["confmat", "best_params", "score_time"])
 
 
 class ConfusionMatrix(object):
