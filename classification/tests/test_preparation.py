@@ -3,7 +3,7 @@ import unittest
 import pandas as pd
 import numpy as np
 from numpy.testing import *
-from classification.preparation import InvalidLogException, get_chunks, downsample
+from classification.logs_loading import InvalidLogException, get_chunks, downsample
 from pandas.util.testing import *
 
 

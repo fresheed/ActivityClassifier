@@ -1,6 +1,6 @@
 from argparse import ArgumentParser
 from experiments import setup, experiments
-from classification.preparation import get_classified_chunks
+from classification.logs_loading import get_classified_chunks
 import itertools
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -41,10 +41,12 @@ def get_all_algorithm_configs(transformers, classifiers, context):
 
 
 def split_items_set(classified_chunks):
+    print("splitting %d logs" % len(classified_chunks))
     items, classes=zip(*classified_chunks)
     train_items, test_items, train_classes, test_classes=train_test_split(items, classes, test_size=0.3, stratify=classes)
     train_set=zip(train_items, train_classes)
     test_set=zip(test_items, test_classes)
+    print("train/test: %d/%d" % (len(train_set), len(test_set)))
     return train_set, test_set
 
 
