@@ -4,6 +4,9 @@ from classification.logs_loading import get_classified_chunks
 import itertools
 import pandas as pd
 from sklearn.model_selection import train_test_split
+import tarfile
+import tempfile
+import os
 
 
 def get_configs(algorithm, transformer_code, classifier_code):
@@ -41,7 +44,6 @@ def get_all_algorithm_configs(transformers, classifiers, context):
 
 
 def split_items_set(classified_chunks):
-    print("splitting %d logs" % len(classified_chunks))
     items, classes=zip(*classified_chunks)
     train_items, test_items, train_classes, test_classes=train_test_split(items, classes, test_size=0.3, stratify=classes)
     train_set=list(zip(train_items, train_classes))
@@ -95,19 +97,33 @@ def display_results(results):
         print("Score time: %f seconds" % output.score_time)
 
 
+def read_archive(archive_path, classes):
+    chunk_duration=pd.to_timedelta("%ds" % setup.chunk_duration_seconds)
+    with tempfile.TemporaryDirectory() as tmp_path:
+        with tarfile.open(name=archive_path, mode="r|gz") as archive:
+            archive.extractall(path=tmp_path)
+            total_files=len(os.listdir(tmp_path))
+            archive_chunks=get_classified_chunks(tmp_path, classes, 
+                                                 chunk_duration, )
+    print("%s: %d log files, %d chunks" % 
+          (archive_path, total_files, len(archive_chunks)))
+    return archive_chunks
+
+
 def run_from_cli():
     parser=ArgumentParser()
     parser.add_argument("--algorithm", required=True,
                         choices=["metric", "features", "all", "ci"], )
     parser.add_argument("--transformer")
     parser.add_argument("--classifier")
-    parser.add_argument("--log_dir", required=True)
+    parser.add_argument("--logs_archives", required=True, nargs="+")
     parser.add_argument("--classes", required=True, nargs="+")
     args=parser.parse_args()
 
-    chunk_duration=pd.to_timedelta("%ds" % setup.chunk_duration_seconds)
-    classified_chunks=get_classified_chunks(args.log_dir, args.classes, 
-                                            chunk_duration, )
+    read_data=[read_archive(path, args.classes)
+               for path in args.logs_archives]
+    classified_chunks=itertools.chain.from_iterable(read_data)
+
     train_set, test_set=split_items_set(classified_chunks)
     display_chunks_stats(classified_chunks)
     

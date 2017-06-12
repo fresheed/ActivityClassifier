@@ -29,13 +29,16 @@ def downsample(full_log, milliseconds):
     req_period=datetime.timedelta(milliseconds=milliseconds)
     even_frame=full_log.resample(req_period).mean().interpolate()
     return even_frame
-    
 
-def strip_logs(logs, ):
+
+def strip_logs(logs):
     start_cutoff=datetime.timedelta(seconds=1.5)
-    end_cutoff=datetime.timedelta(seconds=1.5)
+    end_cutoff=datetime.timedelta(seconds=1.5)    
     def strip_borders(frame):
         start, end=frame.index[0], frame.index[-1]
+        if ((end-start)<(start_cutoff+end_cutoff)):
+            # only cut if log is long enough
+            return frame
         cut_frame=frame[(frame.index>start+start_cutoff)
                         & (frame.index<end-end_cutoff)]
         return cut_frame
@@ -74,13 +77,10 @@ def get_chunks(log, chunk_duration):
     return chunks[:full_chunks]
 
 
-def get_classified_chunks(location, classes, duration, strip_borders=True):
+def get_classified_chunks(location, classes, duration):
     def chunks_for_log(cls):
         classified_logs=collect_class_logs(cls, location)
-        if strip_borders:
-            cut_logs=strip_logs(classified_logs)
-        else:
-            cut_logs=classified_logs
+        cut_logs=strip_logs(classified_logs)
         chunks=split_logs(cut_logs, duration)
         return chunks
 
