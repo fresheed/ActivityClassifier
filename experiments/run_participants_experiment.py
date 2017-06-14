@@ -44,7 +44,8 @@ def get_all_algorithm_configs(transformers, classifiers, context):
 
 
 def split_items_set(classified_chunks):
-    items, classes=zip(*classified_chunks)
+    items, all_classes=zip(*classified_chunks)
+    classes=set(all_classes)
     train_items, test_items, train_classes, test_classes=train_test_split(items, classes, test_size=0.3, stratify=classes)
     train_set=list(zip(train_items, train_classes))
     test_set=list(zip(test_items, test_classes))
@@ -119,20 +120,26 @@ def run_from_cli():
                                  "all", "ci", "local"], )
     parser.add_argument("--transformer")
     parser.add_argument("--classifier")
-    parser.add_argument("--logs_archives", required=True, nargs="+")
+    #parser.add_argument("--logs_archives", required=True, nargs="+")
+    parser.add_argument("--train_archives", required=True, nargs="+")
+    parser.add_argument("--test_archive", required=True,)
     parser.add_argument("--classes", required=True, nargs="+")
     args=parser.parse_args()
 
-    read_data=[read_archive(path, args.classes)
-               for path in args.logs_archives]
-    classified_chunks=list(itertools.chain.from_iterable(read_data))
+    # read_data=[read_archive(path, args.classes)
+    #            for path in args.logs_archives]
+    # classified_chunks=list(itertools.chain.from_iterable(read_data))
+    train_data=[read_archive(path, args.classes)
+                for path in args.train_archives]
+    train_set=list(itertools.chain.from_iterable(train_data))
+    test_set=read_archive(args.test_archive, args.classes)
 
-    print()
-    print("Total:")
-    display_chunks_stats(classified_chunks)
+    # print()
+    # print("Total:")
+    # display_chunks_stats(classified_chunks)
 
-    train_set, test_set=split_items_set(classified_chunks)
-    print("train/test: %d/%d" % (len(train_set), len(test_set)))
+    #train_set, test_set=split_items_set(classified_chunks)
+    #print("train/test: %d/%d" % (len(train_set), len(test_set)))
 
     configs=get_configs(args.algorithm, args.transformer, args.classifier)
     print("Configs to run:")

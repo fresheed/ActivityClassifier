@@ -2,7 +2,7 @@ from sklearn.metrics import confusion_matrix, f1_score
 from sklearn.utils.multiclass import unique_labels
 import numpy as np
 from sklearn.pipeline import Pipeline
-from sklearn.model_selection import GridSearchCV, StratifiedKFold
+from sklearn.model_selection import GridSearchCV, StratifiedKFold, StratifiedShuffleSplit
 from collections import namedtuple
 
 
@@ -35,7 +35,8 @@ class Experiment(object):
     def build_optimizer(self):
         pipeline=self.get_pipeline()
         params=self.get_optimization_params()
-        fold_maker=StratifiedKFold(n_splits=5)
+        fold_maker=StratifiedKFold(n_splits=5, shuffle=True, 
+                                   random_state=42)
         searcher=GridSearchCV(pipeline, scoring="f1_macro", 
                               param_grid=params, cv=fold_maker,
                               n_jobs=4)
