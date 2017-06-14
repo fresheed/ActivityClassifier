@@ -24,8 +24,9 @@ class Experiment(object):
         confmat=ConfusionMatrix(test_classes, classified)
         best_index=model.best_index_
         best_params=model.best_params_
+        fit_time=model.cv_results_["mean_fit_time"][best_index]
         score_time=model.cv_results_["mean_score_time"][best_index]
-        return ExperimentResult(confmat, best_params, score_time)
+        return ExperimentResult(confmat, best_params, fit_time, score_time)
 
     def get_optimal_model(self, items, classes):
         searcher=self.build_optimizer()
@@ -67,7 +68,8 @@ class Experiment(object):
 
 
 ExperimentResult=namedtuple("ExperimentResult", 
-                            ["confmat", "best_params", "score_time"])
+                            ["confmat", "best_params", 
+                             "fit_time", "score_time"])
 
 
 class ConfusionMatrix(object):

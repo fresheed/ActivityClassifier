@@ -93,6 +93,7 @@ def display_results(results):
                estimator_name(config.classifier_config)))
         display_accuracy(output.confmat)
         print("Best params:", output.best_params)
+        print("Fit time: %f seconds" % output.fit_time)
         print("Score time: %f seconds" % output.score_time)
 
 
