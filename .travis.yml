@@ -2,7 +2,9 @@ branches:
  only:
  - master
  - dev
-
+notifications:
+  email: false
+  
 language: python
 python:
 - 3.4
